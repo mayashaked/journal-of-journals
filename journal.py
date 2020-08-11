@@ -48,7 +48,7 @@ def gen_entries_over_time_hist(df):
     ax.xaxis_date()
     plt.title("# journal entries written, by month")
 
-return(plt)
+    return(plt)
 
 
 
