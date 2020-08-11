@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from datetime import date
 import matplotlib.pyplot as plt
-
+from wordcloud import WordCloud, STOPWORDS
 import os
 
 DIRNAME = os.path.dirname(os.path.abspath("__file__"))
@@ -15,6 +15,7 @@ def gen_baseline_metrics(path_to_csv = PATH_TO_CSV)
     df = clean_df(ugly_df)
 
     entries_over_time = gen_entries_over_time_hist(df)
+    wordcloud = gen_wordcloud(df)
 
     pass
 
@@ -48,7 +49,29 @@ def gen_entries_over_time_hist(df):
     ax.xaxis_date()
     plt.title("# journal entries written, by month")
 
-return(plt)
+    return(plt)
 
+def gen_wordcloud(df):
 
+    all_words = ''
+    stopwords = set(STOPWORDS)
 
+    for note in df.note:
+        val = str(val)
+        tokens = val.split()
+
+    for i in range(len(tokens)):
+        tokens[i] = tokens[i].lower()
+        all_words += " ".join(tokens) + " "
+
+    wordcloud = WordCloud(width = 800, height = 800, 
+        background_color ='white', 
+        stopwords = stopwords, 
+        min_font_size = 10).generate(all_words_words)
+
+    plt.figure(figsize = (8,8), facecolor=None)
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    plt.tight_layout(pad = 0)
+
+    return(plt)
