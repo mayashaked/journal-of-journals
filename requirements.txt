@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 alembic==1.2.1
 apache-airflow==1.10.5
 apispec==3.0.0
@@ -204,3 +205,9 @@ widgetsnbextension==3.4.2
 wordcloud==1.7.0
 WTForms==2.2.1
 zope.deprecation==4.4.0
+=======
+matplotlib==3.1.1
+numpy==1.17.2
+pandas==0.25.1
+wordcloud==1.7.0
+>>>>>>> a7434fd8ad2ecd53510c3b567b87b14d5dd7fa0a

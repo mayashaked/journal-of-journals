@@ -50,6 +50,7 @@ def gen_entries_over_time_hist(df):
     plt.title("# journal entries written, by month")
 
     return(plt)
+<<<<<<< HEAD
 
 def gen_wordcloud(df):
 
@@ -63,6 +64,8 @@ def gen_wordcloud(df):
     for i in range(len(tokens)):
         tokens[i] = tokens[i].lower()
         all_words += " ".join(tokens) + " "
+=======
+>>>>>>> a7434fd8ad2ecd53510c3b567b87b14d5dd7fa0a
 
     wordcloud = WordCloud(width = 800, height = 800, 
         background_color ='white', 
