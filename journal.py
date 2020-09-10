@@ -39,7 +39,6 @@ def convert_activities_to_categorical(df):
 
     categorical_activity_matrix = []
 
-    for index, row in df.iterrows():
         activity_list_binary = []
         for activity in all_activities:
                 if type(row['activities']) != str:
@@ -47,15 +46,15 @@ def convert_activities_to_categorical(df):
                 else:
                     if activity in row['activities']:
                         activity_list_binary.append(True)
-                    else: 
-                    activity_list_binary.append(False)
+                    else:
+                        activity_list_binary.append(False)
         categorical_activity_matrix.append(activity_list_binary)
 
     categorical_df = pd.DataFrame(categorical_activity_matrix, columns = all_activities)
 
     full_df = pd.concat([df, categorical_df], axis=1)
 
-    return(categorical_df)
+    return(full_df)
 
 
 
