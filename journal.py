@@ -9,7 +9,7 @@ DIRNAME = os.path.dirname(os.path.abspath("__file__"))
 PATH_TO_CSV = os.path.join(DIRNAME, 'daylio_export.csv')
 
 
-def gen_baseline_metrics(path_to_csv = PATH_TO_CSV)
+def gen_baseline_metrics(path_to_csv = PATH_TO_CSV):
 
     ugly_df = pd.read_csv(path_to_csv, index_col=False)
     df = clean_df(ugly_df)
@@ -19,11 +19,45 @@ def gen_baseline_metrics(path_to_csv = PATH_TO_CSV)
 
     pass
 
-def clean_df(df)
+def clean_df(df):
 
     df.full_date = pd.to_datetime(df.full_date)
+    clean_df = convert_activities_to_categorical(df)
+    
+    return(clean_df)
 
-    return(df)
+def convert_activities_to_categorical(df):
+
+    all_activities = []
+
+    for index, row in df.iterrows():
+        if type(row['activities']) == str:
+            activities_list = row['activities'].split(" | ")
+            for activity in activities_list:
+                if activity not in all_activities:
+                    all_activities.append(activity)
+
+    categorical_activity_matrix = []
+
+    for index, row in df.iterrows():
+        activity_list_binary = []
+        for activity in all_activities:
+                if type(row['activities']) != str:
+                    activity_list_binary = [False] * len(all_activities)
+                else:
+                    if activity in row['activities']:
+                        activity_list_binary.append(True)
+                    else: 
+                    activity_list_binary.append(False)
+        categorical_activity_matrix.append(activity_list_binary)
+
+    categorical_df = pd.DataFrame(categorical_activity_matrix, columns = all_activities)
+
+    full_df = pd.concat([df, categorical_df], axis=1)
+
+    return(categorical_df)
+
+
 
 
 def gen_entries_over_time_hist(df):
