@@ -17,16 +17,16 @@ def gen_baseline_metrics(path_to_csv = PATH_TO_CSV):
     # entries_over_time = gen_entries_over_time_hist(df)
     # wordcloud = gen_wordcloud(df)
 
-    pass
+    return(df)
 
 
 def clean_df(df):
 
     df.full_date = pd.to_datetime(df.full_date)
-    clean_df = convert_activities_to_categorical(df)
-    df_with_mood_scores = mood_to_score(clean_df)
+    df_with_one_hot_encoding = convert_activities_to_categorical(df)
+    df_with_mood_scores = mood_to_score(df_with_one_hot_encoding)
     
-    return(df)
+    return(df_with_mood_scores)
 
 
 def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
@@ -37,8 +37,8 @@ def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
         original_metric[mood] = num
         num += 1
 
-    old_min = min(original_metric)
-    old_max = max(original_metric)
+    old_min = min(original_metric.values())
+    old_max = max(original_metric.values())
 
     ordered_mood_scores = {}
     for mood in original_metric.keys():
@@ -46,7 +46,7 @@ def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
         weighted_score = 10 / (old_max - old_min) * (value - old_max) +  10
         ordered_mood_scores[mood] = weighted_score
 
-    df['mood'].map(ordered_mood_scores)
+    df['mood_score'] = df['mood'].map(ordered_mood_scores)
 
     return(df)
 
