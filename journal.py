@@ -14,17 +14,42 @@ def gen_baseline_metrics(path_to_csv = PATH_TO_CSV):
     ugly_df = pd.read_csv(path_to_csv, index_col=False)
     df = clean_df(ugly_df)
 
-    entries_over_time = gen_entries_over_time_hist(df)
-    wordcloud = gen_wordcloud(df)
+    # entries_over_time = gen_entries_over_time_hist(df)
+    # wordcloud = gen_wordcloud(df)
 
     pass
+
 
 def clean_df(df):
 
     df.full_date = pd.to_datetime(df.full_date)
     clean_df = convert_activities_to_categorical(df)
+    df_with_mood_scores = mood_to_score(clean_df)
     
-    return(clean_df)
+    return(df)
+
+
+def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
+
+    original_metric = {}
+    num = 1
+    for mood in ordered_moods:
+        original_metric[mood] = num
+        num += 1
+
+    old_min = min(original_metric)
+    old_max = max(original_metric)
+
+    ordered_mood_scores = {}
+    for mood in original_metric.keys():
+        value = original_metric[mood]
+        weighted_score = 10 / (old_max - old_min) * (value - old_max) +  10
+        ordered_mood_scores[mood] = weighted_score
+
+    df['mood'].map(ordered_mood_scores)
+
+    return(df)
+
 
 def convert_activities_to_categorical(df):
 
@@ -59,17 +84,15 @@ def convert_activities_to_categorical(df):
     return(full_df)
 
 
-
-
 def gen_entries_over_time_hist(df):
 
-    df._month = pd.to_datetime(df.full_date).dt.to_period('M').dt.to_timestamp()
+    df.date = pd.to_datetime(df.full_date).dt.to_period('M').dt.to_timestamp()
 
-    earliest_entry = min(df._month)
+    earliest_entry = min(df.date)
     start_year = earliest_entry.year
     start_month = earliest_entry.month
 
-    latest_entry = max(df._month)
+    latest_entry = max(df.date)
     end_year = latest_entry.year
     end_month = latest_entry.month
 
