@@ -17,7 +17,7 @@ def gen_baseline_metrics(path_to_csv = PATH_TO_CSV):
     df, all_activities = clean_df(ugly_df)
 
     # entries_over_time = gen_entries_over_time_hist(df)
-    # wordcloud = gen_wordcloud(df)
+    # wordcloud = gen_wordcloud(df) test
 
     linear_model = gen_linear_model(df, all_activities)
     print(classification_model)
