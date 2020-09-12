@@ -29,11 +29,12 @@ def clean_df(df):
     return(df_with_mood_scores)
 
 
-def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
+def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad'], scale = 10):
     '''
     Input: 
         DataFrame of journal entries
         List of default or custom moods ordered from worst to best
+        Scale for normalized values
     Output:
         DataFrame of journal entries with an additional `mood_score` column, which normalizes in the mood.
     '''
@@ -50,7 +51,7 @@ def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
     ordered_mood_scores = {}
     for mood in original_metric.keys():
         value = original_metric[mood]
-        weighted_score = 10 / (old_max - old_min) * (value - old_max) +  10
+        weighted_score = scale / (old_max - old_min) * (value - old_max) +  scale
         ordered_mood_scores[mood] = weighted_score
 
     df['mood_score'] = df['mood'].map(ordered_mood_scores)
