@@ -15,12 +15,12 @@ def gen_baseline_metrics(path_to_csv = PATH_TO_CSV):
 
     ugly_df = pd.read_csv(path_to_csv, index_col=False)
     df, all_activities = clean_df(ugly_df)
+    wordcloud = gen_wordcloud(df)
 
     # entries_over_time = gen_entries_over_time_hist(df)
-    # wordcloud = gen_wordcloud(df) test
+    # wordcloud = gen_wordcloud(df)
 
     linear_model = gen_linear_model(df, all_activities)
-    print(classification_model)
 
     return(df)
 
@@ -32,6 +32,53 @@ def clean_df(df):
     df_with_mood_scores = mood_to_score(df_with_one_hot_encoding)
     
     return(df_with_mood_scores, all_activities)
+
+def gen_dot_plot(df):
+
+    import matplotlib.patches as p
+    import matplotlib.pyplot as plt
+    import math
+
+    fig = plt.figure(1, figsize=(4,4))
+    ax = plt.subplot(111, aspect='equal')
+    colors=['red', 'orange', 'yellow', 'green', 'blue']
+
+    ps = pd.Series([i for i in df.mood])
+    counts = ps.value_counts()
+
+    x=0.05
+    y=0.9
+    m=0
+    cols=1
+    for i in counts:
+            for j in range(i):
+                    p1 = p.Circle((x, y), 0.05, fc=colors[m],
+    edgecolor='white')
+                    x=x+0.1
+                    ax.add_patch(p1)
+                    cols=cols+1
+                    if (cols>10):
+                            cols=1
+                            x=0.05
+                            y=y-0.1
+            m=m+1
+
+    x=0.05
+    y=0.3
+    m=0
+    for i in counts.index:
+            p2 = p.Circle((x, y), 0.05, fc=colors[m], edgecolor='white')
+            ax.add_patch(p2)
+            plt.text(x+0.17, y-0.03, str(int(i))+" blah", ha="center",
+    family='sans-serif', size=11, color='b' )
+            #y=y-0.13
+            x=x+0.35
+            m=m+1
+
+    ax.axis('off')
+    plt.title("Dot Matrix by Mood", color='b', family='sans-serif', size=14)
+    plt.show()
+
 
 def gen_linear_model(df, all_activities):
 
@@ -143,30 +190,35 @@ def gen_entries_over_time_hist(df):
 
     return(plt)
 
-def gen_wordcloud(df):
+def gen_wordcloud(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
 
     all_words = ''
     stopwords = set(STOPWORDS)
 
-    for note in df.note:
-        val = str(val)
-        tokens = val.split()
+    words_by_mood = {}
+    for mood in ordered_moods:
+        words_by_mood[mood] = ''
 
-    for i in range(len(tokens)):
-        tokens[i] = tokens[i].lower()
-        all_words += " ".join(tokens) + " "
+    for index, row in df.iterrows():
+        mood = row[['mood']]
+        note = row[['note']]
+        clean_note = " ".join(note) + " "
+        words_by_mood[mood.mood] += clean_note
 
-    wordcloud = WordCloud(width = 800, height = 800, 
-        background_color ='white', 
-        stopwords = stopwords, 
-        min_font_size = 10).generate(all_words_words)
 
-    plt.figure(figsize = (8,8), facecolor=None)
-    plt.imshow(wordcloud)
-    plt.axis("off")
-    plt.tight_layout(pad = 0)
+    for mood, words in words_by_mood.items():
 
-    return(plt)
+        wordcloud = WordCloud(width = 800, height = 800, 
+            background_color ='white', 
+            stopwords = stopwords, 
+            min_font_size = 10).generate(words)
+
+        plt.figure(figsize = (8,8), facecolor=None)
+        plt.imshow(wordcloud)
+        plt.axis("off")
+        plt.tight_layout(pad = 0)
+
+        plt.savefig(mood + '.png')
 
 if __name__ == '__main__':
     print(gen_baseline_metrics())
