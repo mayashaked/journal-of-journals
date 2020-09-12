@@ -34,52 +34,27 @@ def clean_df(df):
     
     return(df_with_mood_scores, all_activities)
 
-def gen_dot_plot(df):
+def gen_dot_plot(df, matrix_length = 30, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
 
     import matplotlib.patches as p
     import matplotlib.pyplot as plt
     import math
 
-    fig = plt.figure(1, figsize=(4,4))
-    ax = plt.subplot(111, aspect='equal')
-    colors=['red', 'orange', 'yellow', 'green', 'blue']
+    mood_list = list(df.mood)
+    next_round_value = matrix_length * (len(mood_list) // matrix_length + 1)
+    matrix_height = int(next_round_value / matrix_length)
+    mood_list_with_remainder = mood_list + [None] * (next_round_value - len(mood_list))
 
-    ps = pd.Series([i for i in df.mood])
-    counts = ps.value_counts()
+    all_mood_array = []
 
-    x=0.05
-    y=0.9
-    m=0
-    cols=1
-    for i in counts:
-            for j in range(i):
-                    p1 = p.Circle((x, y), 0.05, fc=colors[m],
-    edgecolor='white')
-                    x=x+0.1
-                    ax.add_patch(p1)
-                    cols=cols+1
-                    if (cols>10):
-                            cols=1
-                            x=0.05
-                            y=y-0.1
-            m=m+1
+    for x in range(matrix_height):
+        new_row = mood_list_with_remainder[(x * matrix_height):(2 * x * matrix_height)]
+        all_mood_array.append(new_row)
 
-    x=0.05
-    y=0.3
-    m=0
-    for i in counts.index:
-            p2 = p.Circle((x, y), 0.05, fc=colors[m], edgecolor='white')
-            ax.add_patch(p2)
-            plt.text(x+0.17, y-0.03, str(int(i))+" blah", ha="center",
-    family='sans-serif', size=11, color='b' )
-            #y=y-0.13
-            x=x+0.35
-            m=m+1
+    named_mood_array = np.array(all_mood_array)
 
-    ax.axis('off')
-    plt.title("Dot Matrix by Mood", color='b', family='sans-serif', size=14)
-    plt.show()
 
+    # series of moods to list to array, where we can do //30+1
 
 def gen_linear_model(df, all_activities):
 
@@ -218,6 +193,6 @@ def gen_wordcloud(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
         plt.savefig(mood + '.png')
 
     pass
-    
+
 if __name__ == '__main__':
     print(gen_baseline_metrics())
