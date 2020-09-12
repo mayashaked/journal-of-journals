@@ -6,6 +6,7 @@ from wordcloud import WordCloud, STOPWORDS
 import os
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+import string
 
 DIRNAME = os.path.dirname(os.path.abspath("__file__"))
 PATH_TO_CSV = os.path.join(DIRNAME, 'daylio_export.csv')
@@ -200,19 +201,15 @@ def gen_wordcloud(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
         words_by_mood[mood] = ''
 
     for index, row in df.iterrows():
-        mood = row[['mood']]
-        note = row[['note']]
-        clean_note = " ".join(note) + " "
-        words_by_mood[mood.mood] += clean_note
+        mood = row[['mood']].mood
+        note = row[['note']].note
+        if type(note) == str:
+            clean_note = note.translate(str.maketrans('', '', string.punctuation)).lower()
+        words_by_mood[mood] += clean_note
 
 
     for mood, words in words_by_mood.items():
-
-        wordcloud = WordCloud(width = 800, height = 800, 
-            background_color ='white', 
-            stopwords = stopwords, 
-            min_font_size = 10).generate(words)
-
+        wordcloud = WordCloud(width = 800, height = 800, background_color ='white', stopwords = stopwords, min_font_size = 10, max_words = 100).generate(words)
         plt.figure(figsize = (8,8), facecolor=None)
         plt.imshow(wordcloud)
         plt.axis("off")
@@ -220,5 +217,7 @@ def gen_wordcloud(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
 
         plt.savefig(mood + '.png')
 
+    pass
+    
 if __name__ == '__main__':
     print(gen_baseline_metrics())
