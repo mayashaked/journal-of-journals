@@ -4,6 +4,8 @@ from datetime import date
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import os
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
 
 DIRNAME = os.path.dirname(os.path.abspath("__file__"))
 PATH_TO_CSV = os.path.join(DIRNAME, 'daylio_export.csv')
@@ -12,10 +14,13 @@ PATH_TO_CSV = os.path.join(DIRNAME, 'daylio_export.csv')
 def gen_baseline_metrics(path_to_csv = PATH_TO_CSV):
 
     ugly_df = pd.read_csv(path_to_csv, index_col=False)
-    df = clean_df(ugly_df)
+    df, all_activities = clean_df(ugly_df)
 
     # entries_over_time = gen_entries_over_time_hist(df)
     # wordcloud = gen_wordcloud(df)
+
+    linear_model = gen_linear_model(df, all_activities)
+    print(classification_model)
 
     return(df)
 
@@ -23,10 +28,25 @@ def gen_baseline_metrics(path_to_csv = PATH_TO_CSV):
 def clean_df(df):
 
     df.full_date = pd.to_datetime(df.full_date)
-    df_with_one_hot_encoding = convert_activities_to_categorical(df)
+    df_with_one_hot_encoding, all_activities = convert_activities_to_categorical(df)
     df_with_mood_scores = mood_to_score(df_with_one_hot_encoding)
     
-    return(df_with_mood_scores)
+    return(df_with_mood_scores, all_activities)
+
+def gen_linear_model(df, all_activities):
+
+    # including comment abt duplicately named tables
+    y = df[['mood_score']].to_numpy()
+    df = df.select_dtypes(include='bool')
+    X = df.astype(float).to_numpy()
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_sate=42) 
+
+    reg = LinearRegression().fit(X_train, y_train)
+    reg.sore(X, y)
+    prediction = reg.predict(X_test)
+
+    return(prediction, Y_test)
 
 
 def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad'], scale = 10):
@@ -95,7 +115,7 @@ def convert_activities_to_categorical(df):
 
     full_df = pd.concat([df, categorical_df], axis=1)
 
-    return(full_df)
+    return(full_df, all_activities)
 
 
 def gen_entries_over_time_hist(df):
@@ -147,3 +167,6 @@ def gen_wordcloud(df):
     plt.tight_layout(pad = 0)
 
     return(plt)
+
+if __name__ == '__main__':
+    print(gen_baseline_metrics())
