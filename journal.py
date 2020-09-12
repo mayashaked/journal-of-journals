@@ -30,6 +30,13 @@ def clean_df(df):
 
 
 def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
+    '''
+    Input: 
+        DataFrame of journal entries
+        List of default or custom moods ordered from worst to best
+    Output:
+        DataFrame of journal entries with an additional `mood_score` column, which normalizes in the mood.
+    '''
 
     original_metric = {}
     num = 1
@@ -52,6 +59,12 @@ def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
 
 
 def convert_activities_to_categorical(df):
+    '''
+    Input: 
+        DataFrame of journal entries
+    Output:
+        DataFrame of journal entries with a categorical variable per Daylio activity
+    '''
 
     all_activities = []
 
