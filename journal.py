@@ -5,6 +5,7 @@ import string
 # Data cleaning and modeling
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 import pandas as pd
 import numpy as np
 
@@ -101,13 +102,49 @@ def gen_linear_model(df, all_activities):
     X_train, X_test, y_train, y_test = train_test_split(X,
                                                         y,
                                                         test_size=0.33,
-                                                        random_sate=42)
+                                                        random_state=42)
 
-    reg = LinearRegression().fit(X_train, y_train)
-    reg.sore(X, y)
-    prediction = reg.predict(X_test)
+    # generate random forest
+    model = RandomForestRegressor(n_estimators=100,
+                                  min_samples_leaf=8,
+                                  random_state=42)
+    fit = model.fit(X_train, y_train)
+    predictions = model.predict(X_test)
 
-    return (prediction, Y_test)
+    # get feature importance
+    features = df[all_activities].columns
+    importances = model.feature_importances_
+    indices = np.argsort(importances)
+
+    idx = (-importances).argsort()
+    desc_features = [all_activities[i] for i in idx]
+    top_features = desc_features[:10]
+
+    top_importances = []
+    for feature in top_features:
+        for i in range(len(features)):
+            if features[i] == feature:
+                top_importances.append(importances[i])
+
+    top_importances = np.array(top_importances)
+    new_indices = [x for x in range(10)]
+
+    plt.figure(1)
+    plt.title('feature importance of activities')
+    plt.barh(range(len(new_indices)),
+             top_importances[new_indices],
+             color='b',
+             align='center')
+    plt.yticks(range(len(new_indices)), new_features[new_indices])
+    plt.xlabel('relative importance')
+
+    # reg = LinearRegression().fit(X_train, y_train)
+    # reg.score(X, y)
+    # prediction = reg.predict(X_test)
+
+    # return (prediction, Y_test)
+
+    pass
 
 
 def mood_to_score(df, ordered_moods=ORDERED_MOODS, scale=SCALE):
