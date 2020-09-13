@@ -10,31 +10,32 @@ import string
 
 DIRNAME = os.path.dirname(os.path.abspath("__file__"))
 PATH_TO_CSV = os.path.join(DIRNAME, 'daylio_export.csv')
+ORDERED_MOODS = ['awful', 'bad', 'meh', 'good', 'rad']
+SCALE = 10
 
 
-def gen_baseline_metrics(path_to_csv = PATH_TO_CSV):
+def gen_baseline_metrics(path_to_csv = PATH_TO_CSV, ordered_moods = ORDERED_MOODS, scale = SCALE):
 
     ugly_df = pd.read_csv(path_to_csv, index_col=False)
-    df, all_activities = clean_df(ugly_df)
-    wordcloud = gen_wordcloud(df)
+    df, all_activities = clean_df(ugly_df, ordered_moods, scale)
+    wordcloud = gen_wordcloud(df, ordered_moods)
 
     # entries_over_time = gen_entries_over_time_hist(df)
-    # wordcloud = gen_wordcloud(df)
 
     linear_model = gen_linear_model(df, all_activities)
 
     return(df)
 
 
-def clean_df(df):
+def clean_df(df, ordered_moods = ORDERED_MOODS, scale = SCALE):
 
     df.full_date = pd.to_datetime(df.full_date)
     df_with_one_hot_encoding, all_activities = convert_activities_to_categorical(df)
-    df_with_mood_scores = mood_to_score(df_with_one_hot_encoding)
+    df_with_mood_scores = mood_to_score(df_with_one_hot_encoding, ordered_moods, scale)
     
     return(df_with_mood_scores, all_activities)
 
-def gen_dot_plot(df, matrix_length = 30, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
+def gen_dot_plot(df, ordered_moods = ORDERED_MOODS, matrix_length = 30):
 
     mood_categories = {}
     category = 0
@@ -77,7 +78,7 @@ def gen_linear_model(df, all_activities):
     return(prediction, Y_test)
 
 
-def mood_to_score(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad'], scale = 10):
+def mood_to_score(df, ordered_moods = ORDERED_MOODS, scale = SCALE):
     '''
     Input: 
         DataFrame of journal entries
@@ -171,7 +172,7 @@ def gen_entries_over_time_hist(df):
 
     return(plt)
 
-def gen_wordcloud(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
+def gen_wordcloud(df, ordered_moods = ORDERED_MOODS):
 
     all_words = ''
     stopwords = set(STOPWORDS)
@@ -187,7 +188,7 @@ def gen_wordcloud(df, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
             clean_note = note.translate(str.maketrans('', '', string.punctuation)).lower()
         words_by_mood[mood] += clean_note
 
-
+    
     for mood, words in words_by_mood.items():
         wordcloud = WordCloud(width = 800, height = 800, background_color ='white', stopwords = stopwords, min_font_size = 10, max_words = 100).generate(words)
         plt.figure(figsize = (8,8), facecolor=None)
