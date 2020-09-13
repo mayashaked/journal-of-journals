@@ -4,11 +4,11 @@ import string
 from collections import Counter
 
 # Data cleaning and modeling
+import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
-import pandas as pd
-import numpy as np
 
 # Visualization
 import matplotlib.pyplot as plt
@@ -35,6 +35,7 @@ class Journal:
         self.raw_data = pd.read_csv(path_to_csv, index_col=False)
         self.data, self.activities = self.clean_df()
         self.dot_plot = self.gen_dot_plot()
+        self.hist = self.gen_hist()
 
     def clean_df(self):
 
@@ -103,6 +104,44 @@ class Journal:
         plt.axis('off')
 
         return (plt)
+
+    def gen_wordcloud(self):
+
+        all_words = ''
+        stopwords = set(STOPWORDS)
+
+        words_by_mood = {}
+
+        for mood in self.ordered_moods:
+
+            words_by_mood[mood] = ''
+
+        for index, row in self.data.iterrows():
+
+            mood = row[['mood']].mood
+            note = row[['note']].note
+            if type(note) == str:
+                clean_note = note.translate(
+                    str.maketrans('', '', string.punctuation)).lower()
+            words_by_mood[mood] += clean_note
+
+        wordcloud_dict = {}
+
+        for mood, words in words_by_mood.items():
+            wordcloud = WordCloud(width=800,
+                                  height=800,
+                                  background_color='white',
+                                  stopwords=stopwords,
+                                  min_font_size=10,
+                                  max_words=100).generate(words)
+            plt.figure(figsize=(8, 8), facecolor=None)
+            plt.imshow(wordcloud)
+            plt.axis("off")
+            plt.tight_layout(pad=0)
+            plt.savefig(mood + ".png")
+            wordcloud_dict[mood] = plt
+
+        return (wordcloud_dict)
 
     def convert_activities_to_categorical(self, df):
         '''
@@ -175,31 +214,31 @@ class Journal:
 
 # def gen_linear_model(df, all_activities):
 
-#     # including comment abt duplicately named tables
-#     y = df[['mood_score']].to_numpy()
-#     df = df.select_dtypes(include='bool')
-#     X = df.astype(float).to_numpy()
+# # including comment abt duplicately named tables
+# y = df[['mood_score']].to_numpy()
+# df = df.select_dtypes(include='bool')
+# X = df.astype(float).to_numpy()
 
-#     X_train, X_test, y_train, y_test = train_test_split(X,
-#                                                         y,
-#                                                         test_size=0.33,
-#                                                         random_state=42)
+# X_train, X_test, y_train, y_test = train_test_split(X,
+#                                                     y,
+#                                                     test_size=0.33,
+#                                                     random_state=42)
 
-#     # generate random forest
-#     model = RandomForestRegressor(n_estimators=100,
-#                                   min_samples_leaf=8,
-#                                   random_state=42)
-#     fit = model.fit(X_train, y_train)
-#     predictions = model.predict(X_test)
+# # generate random forest
+# model = RandomForestRegressor(n_estimators=100,
+#                               min_samples_leaf=8,
+#                               random_state=42)
+# fit = model.fit(X_train, y_train)
+# predictions = model.predict(X_test)
 
-#     # get importance for all features
-#     features = all_activities
-#     importances = model.feature_importances_
+# # get importance for all features
+# features = all_activities
+# importances = model.feature_importances_
 
-#     feature_importance = {}
+# feature_importance = {}
 
-#     for x in range(len(features)):
-#         feature_importance[features[x]] = importances[x]
+# for x in range(len(features)):
+#     feature_importance[features[x]] = importances[x]
 
 #     k = Counter(feature_importance)
 #     high = k.most_common(10)
@@ -266,42 +305,3 @@ class Journal:
 #     plt.title("# journal entries written, by month")
 
 #     return (plt)
-
-# def gen_wordcloud(df, ordered_moods=ORDERED_MOODS):
-
-#     all_words = ''
-#     stopwords = set(STOPWORDS)
-
-#     words_by_mood = {}
-
-#     for mood in ordered_moods:
-
-#         words_by_mood[mood] = ''
-
-#     for index, row in df.iterrows():
-
-#         mood = row[['mood']].mood
-#         note = row[['note']].note
-#         if type(note) == str:
-#             clean_note = note.translate(
-#                 str.maketrans('', '', string.punctuation)).lower()
-#         words_by_mood[mood] += clean_note
-
-#     for mood, words in words_by_mood.items():
-#         wordcloud = WordCloud(width=800,
-#                               height=800,
-#                               background_color='white',
-#                               stopwords=stopwords,
-#                               min_font_size=10,
-#                               max_words=100).generate(words)
-#         plt.figure(figsize=(8, 8), facecolor=None)
-#         plt.imshow(wordcloud)
-#         plt.axis("off")
-#         plt.tight_layout(pad=0)
-
-#         plt.savefig(mood + '.png')
-
-#     pass
-
-# if __name__ == '__main__':
-#     print(gen_baseline_metrics())
