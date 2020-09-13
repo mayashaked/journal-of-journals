@@ -36,25 +36,30 @@ def clean_df(df):
 
 def gen_dot_plot(df, matrix_length = 30, ordered_moods = ['awful', 'bad', 'meh', 'good', 'rad']):
 
-    import matplotlib.patches as p
-    import matplotlib.pyplot as plt
-    import math
+    mood_categories = {}
+    category = 0
+    for mood in ordered_moods:
+        mood_categories[mood] = category
+        category += 1
 
-    mood_list = list(df.mood)
+    mood_list = []
+    for mood in list(df.mood):
+        mood_list.append(mood_categories[mood])
+
     next_round_value = matrix_length * (len(mood_list) // matrix_length + 1)
     matrix_height = int(next_round_value / matrix_length)
-    mood_list_with_remainder = mood_list + [None] * (next_round_value - len(mood_list))
+    mood_list_with_remainder = mood_list + [category] * (next_round_value - len(mood_list))
 
     all_mood_array = []
 
     for x in range(matrix_height):
-        new_row = mood_list_with_remainder[(x * matrix_height):(2 * x * matrix_height)]
+        new_row = mood_list_with_remainder[(x * matrix_length):((x + 1) * matrix_length)]
         all_mood_array.append(new_row)
 
-    named_mood_array = np.array(all_mood_array)
+    all_mood_array = np.array(all_mood_array)
 
+    return(all_mood_array)
 
-    # series of moods to list to array, where we can do //30+1
 
 def gen_linear_model(df, all_activities):
 
