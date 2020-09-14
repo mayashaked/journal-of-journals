@@ -4,3 +4,12 @@ Daylio is a popular journaling app. It allows you to enter your mood, activities
 
 ## Daylio App overview
 ![daylio app](https://mindtools.io/wp-content/uploads/2017/10/daylio.png)
+
+## mood Distribution
+![mood_distribution](https://user-images.githubusercontent.com/28957400/93139746-5260b280-f6af-11ea-8c3a-7fca11d26874.png)
+
+## dot plot
+![dot_plot](https://user-images.githubusercontent.com/28957400/93140021-bedbb180-f6af-11ea-8a4e-a197dc2378a0.png)
+
+## bad mood wordcloud
+![bad](https://user-images.githubusercontent.com/28957400/93142500-2562ce80-f6b4-11ea-9d4b-b1361e031ef0.png)
