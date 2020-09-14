@@ -105,7 +105,7 @@ class Journal:
 
         return (plt)
 
-    def gen_wordcloud(self):
+    def gen_wordcloud_per_mood(self):
 
         all_words = ''
         stopwords = set(STOPWORDS)
@@ -142,6 +142,48 @@ class Journal:
             wordcloud_dict[mood] = plt
 
         return (wordcloud_dict)
+
+    # def gen_mood_over_time(self):
+    #     df = self.data
+    #     mood_scores = self.data.mood_score
+
+    #     ax = sns.lineplot(x=list(mood_scores.index), y=list(mood_scores))
+    #     ax.set_title('mood over time')
+    #     ax.set_xlabel('# entry')
+    #     ax.set_ylabel('mood score')
+
+    #     return (ax)
+
+    def gen_entries_over_time_hist(self):
+
+        df = self.data
+        df.full_date = pd.to_datetime(
+            df.full_date).dt.to_period('M').dt.to_timestamp()
+        earliest_entry = min(df.full_date)
+        start_year = earliest_entry.year
+        start_month = earliest_entry.month
+
+        latest_entry = max(df.full_date)
+        end_year = latest_entry.year
+        end_month = latest_entry.month
+
+        all_months = [
+            date(m // 12, m % 12 + 1, 1)
+            for m in range(start_year * 12 + start_month - 1, end_year * 12 +
+                           end_month)
+        ]
+
+        num_entries = []
+
+        for month in all_months:
+            num_entries.append(len(df[df.full_date == month]))
+
+        ax = plt.subplot(111)
+        ax.bar(all_months, num_entries, width=25, color="darkorange")
+        ax.xaxis_date()
+        plt.title("# journal entries written, by month")
+
+        return (plt)
 
     def convert_activities_to_categorical(self, df):
         '''
@@ -276,32 +318,3 @@ class Journal:
 #     # plt.show()
 
 #     pass
-
-# def gen_entries_over_time_hist(df):
-
-#     df.date = pd.to_datetime(df.full_date).dt.to_period('M').dt.to_timestamp()
-
-#     earliest_entry = min(df.date)
-#     start_year = earliest_entry.year
-#     start_month = earliest_entry.month
-
-#     latest_entry = max(df.date)
-#     end_year = latest_entry.year
-#     end_month = latest_entry.month
-
-#     all_months = [
-#         date(m // 12, m % 12 + 1, 1)
-#         for m in range(start_year * 12 + start_month - 1, end_year * 12 +
-#                        end_month)
-#     ]
-#     num_entries = []
-
-#     for month in all_months:
-#         num_entries.append(len(df[df._month == month]))
-
-#     ax = plt.subplot(111)
-#     ax.bar(all_months, num_entries, width=25, color="darkorange")
-#     ax.xaxis_date()
-#     plt.title("# journal entries written, by month")
-
-#     return (plt)
